@@ -1,9 +1,9 @@
 resource "aws_s3_bucket" "codepipeline_artifacts" {
-  bucket = "pipeline-artifacts-davo"
+  bucket = "pipeline-artifacts-prajwal"
   #acl    = "private"
 } 
 
-resource "aws_s3_bucket_acl" "codepipeline_artifacts" {
+resource "aws_s3_bucket_acl" "s3_acl_codepipeline_artifacts" {
   bucket = aws_s3_bucket.codepipeline_artifacts.id
   acl    = "private"
   depends_on = [aws_s3_bucket_ownership_controls.example]
