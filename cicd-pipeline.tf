@@ -57,7 +57,6 @@ resource "aws_codepipeline" "cicd_pipeline" {
 
     name = "tf-cicd"
     role_arn = aws_iam_role.tf-codepipeline-role.arn
-    region = "us-east-1" #
     artifact_store {
         type="S3"
         location = aws_s3_bucket.codepipeline_artifacts.id

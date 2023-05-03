@@ -79,8 +79,7 @@ data "aws_iam_policy_document" "tf-cicd-pipeline-policies" {
     ]
 
     resources = [
-      aws_codebuild_project.terraform_apply.arn,
-      aws_codebuild_project.terraform_plan.arn,
+      "*",
     ]
   }
 }
