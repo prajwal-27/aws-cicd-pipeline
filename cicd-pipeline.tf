@@ -81,7 +81,7 @@ resource "aws_codepipeline" "cicd_pipeline" {
                 BranchName   = "feature/branch_3rd_may_23"
                 ConnectionArn = var.codestar_connector_credentials
                 OutputArtifactFormat = "CODE_ZIP"
-                PollForSourceChanges = true #--
+                
             }
         }
     }
