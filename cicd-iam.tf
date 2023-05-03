@@ -15,11 +15,7 @@ resource "aws_iam_role" "tf-codepipeline-role" {
       }
     ]
   })
-
-  inline_policy {
-    name = "codepipeline_execute_policy"
-    policy = data.aws_iam_policy_document.tf-cicd-pipeline-policies.json
-  }
+  #
 }
 
 data "aws_iam_policy_document" "tf-cicd-pipeline-policies" {
@@ -147,3 +143,4 @@ resource "aws_iam_role_policy_attachment" "tf-cicd-codebuild-attachment2" {
     role        = aws_iam_role.tf-codebuild-role.id
 }
 
+# --
