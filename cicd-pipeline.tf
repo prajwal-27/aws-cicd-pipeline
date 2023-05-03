@@ -70,7 +70,8 @@ resource "aws_codepipeline" "cicd_pipeline" {
             owner = "AWS"
             provider = "CodeStarSourceConnection"
             version = "1"
-            output_artifacts = ["tf-code"]
+            # output_artifacts = ["tf-code"]
+            output_artifacts = ["source_output"]
             configuration = {
                 # FullRepositoryId = "davoclock/aws-cicd-pipeline"
                 FullRepositoryId = "prajwal-27/aws-cicd-pipeline"
@@ -90,7 +91,9 @@ resource "aws_codepipeline" "cicd_pipeline" {
             provider = "CodeBuild"
             version = "1"
             owner = "AWS"
-            input_artifacts = ["tf-code"]
+            # input_artifacts = ["tf-code"]
+            input_artifacts = ["source_output"]
+            output_artifacts = ["build_output"] #
             configuration = {
                 ProjectName = "tf-cicd-plan-stage"
             }
@@ -105,7 +108,8 @@ resource "aws_codepipeline" "cicd_pipeline" {
             provider = "CodeBuild"
             version = "1"
             owner = "AWS"
-            input_artifacts = ["tf-code"]
+            input_artifacts = ["build_output"]
+            # input_artifacts = ["tf-code"]
             configuration = {
                 ProjectName = "tf-cicd-apply-stage"
             }
