@@ -68,8 +68,8 @@ resource "aws_codepipeline" "cicd_pipeline" {
             name = "Source"
             category = "Source"
             owner = "AWS"
-            # provider = "CodeStarSourceConnection"
-            provider = "CodeCommit"
+            provider = "CodeStarSourceConnection"
+            # provider = "CodeCommit"
             version = "1"
             # output_artifacts = ["tf-code"]
             # output_artifacts = ["source_output"]
