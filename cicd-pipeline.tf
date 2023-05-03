@@ -57,7 +57,7 @@ resource "aws_codepipeline" "cicd_pipeline" {
 
     name = "tf-cicd"
     role_arn = aws_iam_role.tf-codepipeline-role.arn
-
+    region = "us-east-1" #
     artifact_store {
         type="S3"
         location = aws_s3_bucket.codepipeline_artifacts.id
@@ -69,17 +69,20 @@ resource "aws_codepipeline" "cicd_pipeline" {
             name = "Source"
             category = "Source"
             owner = "AWS"
-            provider = "CodeStarSourceConnection"
+            # provider = "CodeStarSourceConnection"
+            provider = "CodeCommit"
             version = "1"
             # output_artifacts = ["tf-code"]
-            output_artifacts = ["source_output"]
+            # output_artifacts = ["source_output"]
+            output_artifacts = ["CodeWorkspace"]
             configuration = {
                 # FullRepositoryId = "davoclock/aws-cicd-pipeline"
                 FullRepositoryId = "prajwal-27/aws-cicd-pipeline"
                 # BranchName   = "master"
-                BranchName   = "main"
+                BranchName   = "feature/branch_3rd_may_23"
                 ConnectionArn = var.codestar_connector_credentials
                 OutputArtifactFormat = "CODE_ZIP"
+                PollForSourceChanges = true #--
             }
         }
     }
@@ -92,12 +95,42 @@ resource "aws_codepipeline" "cicd_pipeline" {
             provider = "CodeBuild"
             version = "1"
             owner = "AWS"
+            input_artifacts  = ["CodeWorkspace"]
+            output_artifacts = ["TerraformPlanFile"]
             # input_artifacts = ["tf-code"]
-            input_artifacts = ["source_output"]
-            output_artifacts = ["build_output"] #
+            # input_artifacts = ["source_output"]
+            # output_artifacts = ["build_output"] #
+
             configuration = {
-                ProjectName = "tf-cicd-plan-stage"
+            ProjectName          = "tf-cicd-plan"
+            EnvironmentVariables = jsonencode([
+            {
+                name  = "PIPELINE_EXECUTION_ID"
+                value = "#{codepipeline.PipelineExecutionId}" # The codepipeline reserved namespace
+                type  = "PLAINTEXT"
             }
+            ])
+        }
+
+        }
+    }
+
+    stage {
+        name = "Manual-Approval"
+
+        action {
+        run_order = 1
+        name             = "AWS-Admin-Approval"
+        category         = "Approval"
+        owner            = "AWS"
+        provider         = "Manual"
+        version          = "1"
+        input_artifacts  = []
+        output_artifacts = []
+
+        configuration = {
+            CustomData = "Please verify the terraform plan output on the Plan stage and only approve this step if you see expected changes!"
+        }
         }
     }
 
@@ -109,12 +142,30 @@ resource "aws_codepipeline" "cicd_pipeline" {
             provider = "CodeBuild"
             version = "1"
             owner = "AWS"
-            input_artifacts = ["build_output"]
+            input_artifacts  = ["CodeWorkspace", "TerraformPlanFile"]
+            output_artifacts = []
+            # input_artifacts = ["build_output"]
             # input_artifacts = ["tf-code"]
             configuration = {
-                ProjectName = "tf-cicd-apply-stage"
+            ProjectName          = "tf-cicd-apply"
+            PrimarySource        = "CodeWorkspace"
+            EnvironmentVariables = jsonencode([
+            {
+                name  = "PIPELINE_EXECUTION_ID"
+                value = "#{codepipeline.PipelineExecutionId}"
+                type  = "PLAINTEXT"
             }
+            ])
+        }
         }
     }
-
 }
+
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------

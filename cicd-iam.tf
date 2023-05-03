@@ -1,22 +1,25 @@
 resource "aws_iam_role" "tf-codepipeline-role" {
   name = "tf-codepipeline-role"
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "codepipeline.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
+  assume_role_policy = jsonencode(
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Action": "sts:AssumeRole",
+        "Principal": {
+          "Service": "codepipeline.amazonaws.com"
+        },
+        "Effect": "Allow",
+        "Sid": ""
+      }
+    ]
+  })
 
+  inline_policy {
+    name = "codepipeline_execute_policy"
+    policy = data.aws_iam_policy_document.tf-cicd-pipeline-policies.json
+  }
 }
 
 data "aws_iam_policy_document" "tf-cicd-pipeline-policies" {
@@ -28,10 +31,62 @@ data "aws_iam_policy_document" "tf-cicd-pipeline-policies" {
     }
     statement{
         sid = ""
-        actions = ["cloudwatch:*", "s3:*", "codebuild:*"]
+        actions = ["cloudwatch:*", "s3:*", "codebuild:*", "secretsmanager:*"]
         resources = ["*"]
         effect = "Allow"
     }
+
+    statement {
+    sid = "SSOCodePipelineAllow"
+
+    actions = [
+      "s3:*",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:PassRole",
+    ]
+
+    resources = [
+      aws_iam_role.tf-codepipeline-role.arn,
+    ]
+  }
+
+  statement {
+    actions = [
+      "codecommit:BatchGet*",
+      "codecommit:BatchDescribe*",
+      "codecommit:Describe*",
+      "codecommit:Get*",
+      "codecommit:List*",
+      "codecommit:GitPull",
+      "codecommit:UploadArchive",
+      "codecommit:GetBranch",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "codebuild:StartBuild",
+      "codebuild:StopBuild",
+      "codebuild:BatchGetBuilds",
+    ]
+
+    resources = [
+      aws_codebuild_project.terraform_apply.arn,
+      aws_codebuild_project.terraform_plan.arn,
+    ]
+  }
 }
 
 resource "aws_iam_policy" "tf-cicd-pipeline-policy" {
@@ -50,22 +105,20 @@ resource "aws_iam_role_policy_attachment" "tf-cicd-pipeline-attachment" {
 resource "aws_iam_role" "tf-codebuild-role" {
   name = "tf-codebuild-role"
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "codebuild.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-
+  assume_role_policy =  jsonencode(
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Action": "sts:AssumeRole",
+        "Principal": {
+          "Service": "codebuild.amazonaws.com"
+        },
+        "Effect": "Allow",
+        "Sid": ""
+      }
+    ]
+  })
 }
 
 data "aws_iam_policy_document" "tf-cicd-build-policies" {
@@ -93,3 +146,4 @@ resource "aws_iam_role_policy_attachment" "tf-cicd-codebuild-attachment2" {
     policy_arn  = "arn:aws:iam::aws:policy/PowerUserAccess"
     role        = aws_iam_role.tf-codebuild-role.id
 }
+

@@ -1,6 +1,9 @@
 resource "aws_s3_bucket" "codepipeline_artifacts" {
   bucket = "pipeline-artifacts-prajwal"
   #acl    = "private"
+    lifecycle {
+    prevent_destroy = false
+  }
 } 
 
 resource "aws_s3_bucket_acl" "s3_acl_codepipeline_artifacts" {
