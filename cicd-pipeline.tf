@@ -92,7 +92,7 @@ resource "aws_codepipeline" "cicd_pipeline" {
             owner = "AWS"
             input_artifacts = ["tf-code"]
             configuration = {
-                ProjectName = "tf-cicd-plan"
+                ProjectName = "tf-cicd-plan-stage"
             }
         }
     }
@@ -107,7 +107,7 @@ resource "aws_codepipeline" "cicd_pipeline" {
             owner = "AWS"
             input_artifacts = ["tf-code"]
             configuration = {
-                ProjectName = "tf-cicd-apply"
+                ProjectName = "tf-cicd-apply-stage"
             }
         }
     }
