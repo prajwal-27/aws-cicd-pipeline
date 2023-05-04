@@ -72,8 +72,8 @@ resource "aws_codepipeline" "cicd_pipeline" {
             owner = "AWS"
             provider = "CodeStarSourceConnection"
             version = "1"
-            # output_artifacts = ["tf-code"]
-            output_artifacts = ["source_output"]
+            output_artifacts = ["tf-code"]
+            # output_artifacts = ["source_output"]
             configuration = {
                 # FullRepositoryId = "davoclock/aws-cicd-pipeline"
                 FullRepositoryId = "prajwal-27/aws-cicd-pipeline"
