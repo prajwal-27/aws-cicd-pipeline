@@ -52,7 +52,7 @@ resource "aws_codebuild_project" "tf-apply" {
  }
 }
 
-# pipeline stage ------------------------------------------------------------------
+# pipeline stage -------------------------------------------------------------------
 
 resource "aws_codepipeline" "cicd_pipeline" {
 
