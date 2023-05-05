@@ -1,4 +1,4 @@
-# plan stage ------------------------------------------------------------------
+# plan stage -------------------------------------------------------------------
 resource "aws_codebuild_project" "tf-plan" {
   name          = "tf-cicd-plan"
   description   = "Plan stage for terraform"
